@@ -30,13 +30,29 @@ Every icon is drawn as an **outline stencil**: the fill is always empty, and the
 
 ## Using the icons
 
-### In draw.io
+### In draw.io / diagrams.net
 
-1. Open [draw.io](https://app.diagrams.net/) (web or desktop).
-2. Go to **File ▸ Open Library from ▸ Device**.
-3. Select [`ict-icons.drawio-library.xml`](ict-icons.drawio-library.xml).
+The library is a standard draw.io shape library — an `<mxlibrary>` file with the `.xml` extension. This is still the current, correct format; draw.io does **not** use a separate `.json` file for libraries (the JSON array simply lives inside the `<mxlibrary>` tag).
 
-The icons appear as a new shape palette in the left sidebar. Because each icon is a stencil that inherits its stroke, you recolour it by selecting the shape and changing the **Line** colour in the Style panel — the fill stays empty.
+**Web app** ([app.diagrams.net](https://app.diagrams.net/)):
+
+1. Go to **File ▸ Open Library from… ▸ Device…**
+2. Select [`ict-icons.drawio-library.xml`](ict-icons.drawio-library.xml).
+
+**Desktop app:**
+
+1. Go to **File ▸ Open Library…**
+2. Select [`ict-icons.drawio-library.xml`](ict-icons.drawio-library.xml).
+
+The icons then appear as a new shape palette in the left sidebar (below the Scratchpad). Because each icon is a stencil that inherits its stroke, you recolour it by selecting the shape and changing the **Line** colour in the Style panel — the fill stays empty.
+
+> **Use "Open Library", not "Open".** This is the usual reason an import appears to "not work". **File ▸ Open** expects a *diagram* (`<mxfile>`) and will reject a library file, sometimes in a way that looks like it wanted a different/JSON format. A shape library must always go through **Open Library** (**Open Library from…** on the web app).
+
+#### Troubleshooting
+
+- **Nothing happens / "not a valid file":** make sure you used **Open Library** (web: **Open Library from… ▸ Device…**), not **Open**.
+- **The file picker won't let you select the file:** it filters to `.xml`. This file's full name is `ict-icons.drawio-library.xml`, so its extension *is* `.xml` — but if your OS hid or altered the extension on download, rename it to a plain `something.xml` and try again.
+- **You want to double-check the file is intact:** the first characters must be `<mxlibrary>[` and the last must be `]</mxlibrary>`. If your download tool wrapped it in HTML or truncated it, re-download the raw file.
 
 ### As SVGs
 
