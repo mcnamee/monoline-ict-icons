@@ -48,7 +48,7 @@ The [`svg/`](svg/) directory contains all 59 icons as standalone `.svg` files. E
 
 ## Interactive preview
 
-[`index.html`](index.html) is a live preview page that renders the full grid and lets you experiment with the **line colour** and **stroke weight** (Extra Thin → Bold) before importing. Open it in a browser to see the icons rendered from the shared source data.
+[`index.html`](https://mcnamee.github.io/monoline-ict-icons/) is a live preview page that renders the full grid and lets you experiment with the **line colour** and **stroke weight** (Extra Thin → Bold) before importing. Open it in a browser to see the icons rendered from the shared source data.
 
 ## Project structure
 
