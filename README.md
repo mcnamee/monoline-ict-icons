@@ -58,10 +58,10 @@ The icons then appear as a new shape palette in the left sidebar (below the Scra
 
 #### Troubleshooting
 
-- **`JSON Parse error: Unexpected identifier "This"` (or `Unexpected token '<'`):** you imported a saved **web page**, not the library file. This happens when you use your browser's *Save As* on the GitHub file page. Fix it by importing from the URL above, or by clicking **“Download raw file”** on GitHub (not *Save As*). To confirm, open the file in a text editor — it must begin with `<mxlibrary>[`, not `<!DOCTYPE html` or plain text.
+- **`JSON Parse error` on import:** make sure you have the current version of `ict-icons.drawio-library.xml`. draw.io parses the library as XML *first*, so the embedded shape markup inside it must be XML‑escaped (the file begins with `<mxlibrary>[{"xml":"&lt;mxGraphModel&gt;…`). If you have an older copy where the shapes start with a literal `<mxGraphModel>` (unescaped), re‑download the raw file — the escaping is required.
 - **Nothing happens / "not a valid file":** make sure you used **Open Library** (web: **Open Library from… ▸ Device…**), not **Open**.
 - **The file picker won't let you select the file:** it filters to `.xml`. This file's full name is `ict-icons.drawio-library.xml`, so its extension *is* `.xml` — but if your OS hid or altered the extension on download, rename it to a plain `something.xml` and try again.
-- **You want to double-check the file is intact:** the first characters must be `<mxlibrary>[` and the last must be `]</mxlibrary>`. If your download tool wrapped it in HTML or truncated it, re-download the raw file.
+- **Downloading the file:** use the URL import above, or click **“Download raw file”** on GitHub — don't use the browser's *Save As* on the file page, which saves the HTML page instead of the file.
 
 ### As SVGs
 
