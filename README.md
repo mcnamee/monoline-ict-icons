@@ -39,6 +39,14 @@ The library is a standard draw.io shape library — an `<mxlibrary>` file with t
 1. Go to **File ▸ Open Library from… ▸ Device…**
 2. Select [`ict-icons.drawio-library.xml`](ict-icons.drawio-library.xml).
 
+Or import it directly from a URL — **File ▸ Open Library from… ▸ URL…**, then paste:
+
+```
+https://raw.githubusercontent.com/mcnamee/monoline-ict-icons/main/ict-icons.drawio-library.xml
+```
+
+Importing from the URL avoids the most common failure below (accidentally saving GitHub's web page instead of the raw file).
+
 **Desktop app:**
 
 1. Go to **File ▸ Open Library…**
@@ -50,6 +58,7 @@ The icons then appear as a new shape palette in the left sidebar (below the Scra
 
 #### Troubleshooting
 
+- **`JSON Parse error: Unexpected identifier "This"` (or `Unexpected token '<'`):** you imported a saved **web page**, not the library file. This happens when you use your browser's *Save As* on the GitHub file page. Fix it by importing from the URL above, or by clicking **“Download raw file”** on GitHub (not *Save As*). To confirm, open the file in a text editor — it must begin with `<mxlibrary>[`, not `<!DOCTYPE html` or plain text.
 - **Nothing happens / "not a valid file":** make sure you used **Open Library** (web: **Open Library from… ▸ Device…**), not **Open**.
 - **The file picker won't let you select the file:** it filters to `.xml`. This file's full name is `ict-icons.drawio-library.xml`, so its extension *is* `.xml` — but if your OS hid or altered the extension on download, rename it to a plain `something.xml` and try again.
 - **You want to double-check the file is intact:** the first characters must be `<mxlibrary>[` and the last must be `]</mxlibrary>`. If your download tool wrapped it in HTML or truncated it, re-download the raw file.
