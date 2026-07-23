@@ -79,11 +79,21 @@ The [`svg/`](svg/) directory contains all 59 icons as standalone `.svg` files. E
 
 | Path | Description |
 | --- | --- |
-| `ict-icons.drawio-library.xml` | The draw.io stencil library (importable). |
+| `icons-data.js` | Single source of truth — each icon defined as normalised primitives (`rect`, `line`, `circle`, `poly`, `path`, …) in a `0..100` coordinate space, plus `iconToSVG()` / `iconToStencil()` renderers. |
+| `build.js` | Regenerates `ict-icons.drawio-library.xml` from `icons-data.js`. |
+| `ict-icons.drawio-library.xml` | The draw.io stencil library (importable). Generated — do not edit by hand. |
 | `svg/` | 59 standalone SVG icons. |
-| `icons-data.js` | Single source of truth — each icon defined as normalised primitives (`rect`, `line`, `circle`, `poly`, `path`, …) in a `0..100` coordinate space, plus an `iconToSVG()` renderer. |
 | `index.html` | Interactive preview page. |
 | `support.js` | Generated runtime for the preview component. |
 | `screenshots/` | Preview screenshots. |
 
-Icon geometry lives in `icons-data.js`. Both the SVG files and the draw.io stencils are generated from these definitions, so that file is the place to add or adjust an icon.
+## Development
+
+Icon geometry lives in `icons-data.js` — that's the place to add or adjust an icon. The draw.io library is generated from it:
+
+```
+node build.js          # regenerate ict-icons.drawio-library.xml
+node build.js --check   # verify the committed library is up to date
+```
+
+> The library is emitted as an `<mxlibrary>` element whose JSON payload is **XML-escaped** (`&amp;`, `&lt;`, `&gt;`). This is required: draw.io XML-parses the whole file before reading the JSON, so an unescaped payload fails to import with a "JSON Parse error". `build.js` handles the escaping — regenerate with it rather than editing the `.xml` directly.
