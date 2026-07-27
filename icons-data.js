@@ -722,8 +722,12 @@
     opts = opts || {};
     const sw = opts.strokeWidth != null ? opts.strokeWidth : 2;
     const color = opts.color || 'currentColor';
-    const size = opts.size || 100;
-    return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="${size}" height="${size}" ` +
+    // Each icon carries its own box (icon.w × icon.h) set by the normalise pass.
+    // opts.size, when given, scales the longer side to that many pixels.
+    const w = icon.w, h = icon.h;
+    const k = opts.size ? opts.size / Math.max(w, h) : 1;
+    const width = Math.round(w * k), height = Math.round(h * k);
+    return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}" width="${width}" height="${height}" ` +
       `fill="none" stroke="${color}" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round">` +
       icon.prims.map(primToSVG).join('') + `</svg>`;
   }
@@ -762,9 +766,84 @@
   }
   function iconToStencil(icon) {
     const body = icon.prims.map(primToStencil).join('');
-    return `<shape name="${icon.name}" h="100" w="100" aspect="fixed" strokewidth="inherit">` +
+    return `<shape name="${icon.name}" h="${icon.h}" w="${icon.w}" aspect="fixed" strokewidth="inherit">` +
       `<foreground><linecap cap="round"/><linejoin join="round"/>${body}</foreground></shape>`;
   }
+
+  // ---- normalise every icon to hug its bounding box -----------------------
+  // Icons were authored at varying sizes inside the 0..100 space, so most sat
+  // small inside their draw.io cell (loose resizing, labels stranded far from
+  // the art). Here each icon is scaled uniformly so its longer dimension spans
+  // (100 - 2*MARGIN), then given its own box (icon.w × icon.h) that hugs the
+  // content with exactly MARGIN units of padding on all four sides. Aspect
+  // ratio is preserved, so wide icons get wide boxes and tall icons tall ones.
+  const MARGIN = 10;
+  function sampleBezier(p0, c, isQ, add) {
+    for (let t = 0; t <= 1; t += 0.05) {
+      const u = 1 - t;
+      add(
+        isQ ? u * u * p0[0] + 2 * u * t * c[0] + t * t * c[2]
+            : u ** 3 * p0[0] + 3 * u * u * t * c[0] + 3 * u * t * t * c[2] + t ** 3 * c[4],
+        isQ ? u * u * p0[1] + 2 * u * t * c[1] + t * t * c[3]
+            : u ** 3 * p0[1] + 3 * u * u * t * c[1] + 3 * u * t * t * c[3] + t ** 3 * c[5]
+      );
+    }
+  }
+  function primBox(p) {
+    const xs = [], ys = [], add = (x, y) => { xs.push(x); ys.push(y); };
+    switch (p.t) {
+      case 'rect': case 'rrect': add(p.x, p.y); add(p.x + p.w, p.y + p.h); break;
+      case 'line': add(p.x1, p.y1); add(p.x2, p.y2); break;
+      case 'circle': add(p.cx - p.r, p.cy - p.r); add(p.cx + p.r, p.cy + p.r); break;
+      case 'ellipse': add(p.cx - p.rx, p.cy - p.ry); add(p.cx + p.rx, p.cy + p.ry); break;
+      case 'poly': case 'polygon': p.pts.forEach(([x, y]) => add(x, y)); break;
+      case 'p': {
+        let c = [0, 0];
+        for (const cmd of p.cmds) {
+          if (cmd[0] === 'M' || cmd[0] === 'L') { c = [cmd[1], cmd[2]]; add(c[0], c[1]); }
+          else if (cmd[0] === 'C') { sampleBezier(c, cmd.slice(1), false, add); c = [cmd[5], cmd[6]]; }
+          else if (cmd[0] === 'Q') { sampleBezier(c, cmd.slice(1), true, add); c = [cmd[3], cmd[4]]; }
+        }
+        break;
+      }
+    }
+    return { minX: Math.min(...xs), minY: Math.min(...ys), maxX: Math.max(...xs), maxY: Math.max(...ys) };
+  }
+  const tx = (v, s, o) => r2(v * s + o);
+  function scalePrim(p, s, ox, oy) {
+    switch (p.t) {
+      case 'rect': case 'rrect':
+        p.x = tx(p.x, s, ox); p.y = tx(p.y, s, oy); p.w = r2(p.w * s); p.h = r2(p.h * s);
+        if ('r' in p) p.r = r2(p.r * s); break;
+      case 'line':
+        p.x1 = tx(p.x1, s, ox); p.y1 = tx(p.y1, s, oy); p.x2 = tx(p.x2, s, ox); p.y2 = tx(p.y2, s, oy); break;
+      case 'circle':
+        p.cx = tx(p.cx, s, ox); p.cy = tx(p.cy, s, oy); p.r = r2(p.r * s); break;
+      case 'ellipse':
+        p.cx = tx(p.cx, s, ox); p.cy = tx(p.cy, s, oy); p.rx = r2(p.rx * s); p.ry = r2(p.ry * s); break;
+      case 'poly': case 'polygon':
+        p.pts = p.pts.map(([x, y]) => [tx(x, s, ox), tx(y, s, oy)]); break;
+      case 'p':
+        p.cmds = p.cmds.map((c) => {
+          if (c[0] === 'M' || c[0] === 'L') return [c[0], tx(c[1], s, ox), tx(c[2], s, oy)];
+          if (c[0] === 'C') return ['C', tx(c[1], s, ox), tx(c[2], s, oy), tx(c[3], s, ox), tx(c[4], s, oy), tx(c[5], s, ox), tx(c[6], s, oy)];
+          if (c[0] === 'Q') return ['Q', tx(c[1], s, ox), tx(c[2], s, oy), tx(c[3], s, ox), tx(c[4], s, oy)];
+          return c;
+        });
+        break;
+    }
+  }
+  function normalise(icon) {
+    const bs = icon.prims.map(primBox);
+    const minX = Math.min(...bs.map((b) => b.minX)), minY = Math.min(...bs.map((b) => b.minY));
+    const maxX = Math.max(...bs.map((b) => b.maxX)), maxY = Math.max(...bs.map((b) => b.maxY));
+    const bw = maxX - minX, bh = maxY - minY;
+    const s = (100 - 2 * MARGIN) / Math.max(bw, bh);
+    icon.prims.forEach((p) => scalePrim(p, s, MARGIN - minX * s, MARGIN - minY * s));
+    icon.w = Math.round(bw * s + 2 * MARGIN);
+    icon.h = Math.round(bh * s + 2 * MARGIN);
+  }
+  ICONS.forEach(normalise);
 
   ICONS.sort((a, b) => a.name.localeCompare(b.name));
   const api = { ICONS, iconToSVG, iconToStencil, primToSVG, primToStencil };

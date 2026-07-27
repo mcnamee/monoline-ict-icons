@@ -1,7 +1,7 @@
 name: build-check
 
-# Fails if the committed draw.io library is out of sync with icons-data.js.
-# Regenerate locally with `node build.js` and commit the result.
+# Fails if the committed draw.io library or svg/ files are out of sync with
+# icons-data.js. Regenerate locally with `node build.js` and commit the result.
 
 on:
   push:
@@ -16,5 +16,5 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      - name: Verify ict-icons.drawio-library.xml is up to date
+      - name: Verify generated files are up to date
         run: node build.js --check
