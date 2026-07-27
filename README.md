@@ -65,7 +65,7 @@ The icons then appear as a new shape palette in the left sidebar (below the Scra
 
 ### As SVGs
 
-The [`svg/`](svg/) directory contains all 59 icons as standalone `.svg` files. Each uses a `0 0 100 100` viewBox with `fill="none"` and a `stroke` colour, so you can restyle them with CSS or by editing the `stroke` / `stroke-width` attributes.
+The [`svg/`](svg/) directory contains all 59 icons as standalone `.svg` files. Each icon's `viewBox` is sized to hug its artwork (longer side 100, with a 10-unit margin on all sides), with `fill="none"` and a `stroke` colour, so you can restyle them with CSS or by editing the `stroke` / `stroke-width` attributes.
 
 ```html
 <img src="svg/firewall.svg" width="48" alt="Firewall">
@@ -80,20 +80,22 @@ The [`svg/`](svg/) directory contains all 59 icons as standalone `.svg` files. E
 | Path | Description |
 | --- | --- |
 | `icons-data.js` | Single source of truth — each icon defined as normalised primitives (`rect`, `line`, `circle`, `poly`, `path`, …) in a `0..100` coordinate space, plus `iconToSVG()` / `iconToStencil()` renderers. |
-| `build.js` | Regenerates `ict-icons.drawio-library.xml` from `icons-data.js`. |
+| `build.js` | Regenerates `ict-icons.drawio-library.xml` **and** the `svg/` files from `icons-data.js`. |
 | `ict-icons.drawio-library.xml` | The draw.io stencil library (importable). Generated — do not edit by hand. |
-| `svg/` | 59 standalone SVG icons. |
+| `svg/` | 59 standalone SVG icons. Generated — do not edit by hand. |
 | `index.html` | Interactive preview page. |
 | `support.js` | Generated runtime for the preview component. |
 | `screenshots/` | Preview screenshots. |
 
 ## Development
 
-Icon geometry lives in `icons-data.js` — that's the place to add or adjust an icon. The draw.io library is generated from it:
+Icon geometry lives in `icons-data.js` — that's the place to add or adjust an icon. The draw.io library and the SVGs are generated from it:
 
 ```
-node build.js          # regenerate ict-icons.drawio-library.xml
-node build.js --check   # verify the committed library is up to date
+node build.js          # regenerate svg/ and ict-icons.drawio-library.xml
+node build.js --check   # verify the committed files are up to date
 ```
+
+On load, `icons-data.js` **normalises** every icon so its box hugs the artwork: the geometry is scaled uniformly (aspect preserved) so the longer side fills the box, leaving a fixed 10-unit margin on all sides. Each icon's box (`icon.w` × `icon.h`) then flows to the SVG `viewBox` and the draw.io stencil/geometry — so a new icon inherits the tight bounding box automatically.
 
 > The library is emitted as an `<mxlibrary>` element whose JSON payload is **XML-escaped** (`&amp;`, `&lt;`, `&gt;`). This is required: draw.io XML-parses the whole file before reading the JSON, so an unescaped payload fails to import with a "JSON Parse error". `build.js` handles the escaping — regenerate with it rather than editing the `.xml` directly.
