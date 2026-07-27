@@ -8,10 +8,11 @@ Every icon is drawn as an **outline stencil**: the fill is always empty, and the
 
 ## Contents
 
-**59 icons** across 15 categories:
+**76 icons** across 16 categories:
 
 | Category | Count | Examples |
 | --- | --- | --- |
+| AWS | 17 | EC2, VPC, VPC Peering, Direct Connect, Interconnect, S3, Lambda, ECS, EKS, RDS, DynamoDB, Route 53, API Gateway, IAM, CloudWatch, SNS, CloudFormation |
 | Network | 9 | Router, Switch, VPN, Firewall, Load Balancer, Wireless AP, CDN, Antenna / Dish, Cell Tower |
 | Compute | 8 | Server (1 RU / 5 RU), Server Racks, CPU, RAM, Cloud Computing |
 | Data | 6 | Database, Storage / NAS, Block Storage, Hard Drive, Cache, Queue System |
@@ -65,7 +66,7 @@ The icons then appear as a new shape palette in the left sidebar (below the Scra
 
 ### As SVGs
 
-The [`svg/`](svg/) directory contains all 59 icons as standalone `.svg` files. Each icon's `viewBox` is sized to hug its artwork (longer side 100, with a 10-unit margin on all sides), with `fill="none"` and a `stroke` colour, so you can restyle them with CSS or by editing the `stroke` / `stroke-width` attributes.
+The [`svg/`](svg/) directory contains all 76 icons as standalone `.svg` files. Each icon's `viewBox` is sized to hug its artwork (longer side 100, with a 10-unit margin on all sides), with `fill="none"` and a `stroke` colour, so you can restyle them with CSS or by editing the `stroke` / `stroke-width` attributes.
 
 ```html
 <img src="svg/firewall.svg" width="48" alt="Firewall">
@@ -82,7 +83,7 @@ The [`svg/`](svg/) directory contains all 59 icons as standalone `.svg` files. E
 | `icons-data.js` | Single source of truth — each icon defined as normalised primitives (`rect`, `line`, `circle`, `poly`, `path`, …) in a `0..100` coordinate space, plus `iconToSVG()` / `iconToStencil()` renderers. |
 | `build.js` | Regenerates `ict-icons.drawio-library.xml` **and** the `svg/` files from `icons-data.js`. |
 | `ict-icons.drawio-library.xml` | The draw.io stencil library (importable). Generated — do not edit by hand. |
-| `svg/` | 59 standalone SVG icons. Generated — do not edit by hand. |
+| `svg/` | 76 standalone SVG icons. Generated — do not edit by hand. |
 | `index.html` | Interactive preview page. |
 | `support.js` | Generated runtime for the preview component. |
 | `screenshots/` | Preview screenshots. |
